@@ -2,3 +2,5 @@
 hardware.asc
 hardware.bin
 hardware.json
+*.out
+*.vcd
