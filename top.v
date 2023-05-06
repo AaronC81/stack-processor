@@ -116,7 +116,7 @@ module top (
         else begin
             case (instructions[instruction_index])
                 8'b00000000: begin
-                    stack_pointer = stack_pointer + 1;
+                    stack_pointer = stack_pointer - 1;
 
                     stack_write_back <= 1;
                     stack_write_back_value <= 0;
@@ -125,7 +125,7 @@ module top (
                     stack_write_back <= 1;
                     stack_write_back_value <= stack_top_item + 1;
                 end
-                8'b00000011: stack_pointer <= stack_pointer - 1;
+                8'b00000011: stack_pointer <= stack_pointer + 1;
                 default:;
             endcase
         end
