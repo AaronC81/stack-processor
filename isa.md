@@ -27,8 +27,8 @@ TODO: consistent suffix for "indirect"?
 - `store-indirect` - Pop memory location from stack, pop value from stack, then write value to memory location
 
 ## Arithmetic
-- `add` - Pop `b`, pop `a`, push `a+b`
-- `sub` -         ^         push `a-b`
+- `add (x21)` - Pop `b`, pop `a`, push `a+b`
+- `sub`       -         ^         push `a-b`
 - `inc (x20)` - Pop `a`, push `a+1`
 
 ## Routines

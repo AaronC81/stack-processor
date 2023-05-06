@@ -10,6 +10,7 @@ INSTRUCTIONS = {
     "push" => { opcode: 0x10, operand: true },
     "push0" => { opcode: 0x11 },
     "inc" => { opcode: 0x20 },
+    "add" => { opcode: 0x21 },
     "br" => { opcode: 0x30 },
     "show" => { opcode: 0xFE },
 }

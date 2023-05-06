@@ -84,6 +84,8 @@ module top (
 
     wire [31:0] stack_top_item;
     assign stack_top_item = stack[stack_pointer + 1];
+    wire [31:0] stack_second_item;
+    assign stack_second_item = stack[stack_pointer + 2];
 
     wire stack_is_empty;
     assign stack_is_empty = stack_pointer == 255;
@@ -168,6 +170,14 @@ module top (
                 8'h20: begin
                     stack_write_back <= 1;
                     stack_write_back_value <= stack_top_item + 1;
+                end
+
+                // add
+                8'h21: begin
+                    stack_write_back <= 1;
+                    stack_write_back_value = stack_top_item + stack_second_item;
+
+                    stack_pointer = stack_pointer + 1;
                 end
 
                 // br
