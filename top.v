@@ -95,13 +95,18 @@ module top (
             stack[i] = 0;
     end
 
-    wire [7:0] instructions [0:3];
-    assign instructions[0] = 8'h11; // push0
-    assign instructions[1] = 8'h20; // inc
-    assign instructions[2] = 8'h20; // inc
-    assign instructions[3] = 8'hFF; // halt
+    wire [7:0] instructions [0:7];
+    assign instructions[0] = 8'h10; // push
+    assign instructions[1] = 8'h00; //   xx000000
+    assign instructions[2] = 8'h00; //   00xx0000
+    assign instructions[3] = 8'h00; //   0000xx00
+    assign instructions[4] = 8'h06; //   000000xx
+    assign instructions[5] = 8'h20; // inc
+    assign instructions[6] = 8'h20; // inc
+    assign instructions[7] = 8'hFF; // halt
 
-    reg [1:0] instruction_index = 0;
+    reg [31:0] instruction_index = 0;
+    reg instruction_had_32bit_immediate = 0;
 
     // 2^22 * (1 / 16MHz) =~ 0.25s per clock
     reg [22:0] instruction_clock_counter = 0;
@@ -122,6 +127,7 @@ module top (
     // TODO: briefly flickers incorrect pushed value on display, because SP has incremented but new value hasn't been written back
     always @(posedge instruction_clock) begin
         led <= ~led;
+        instruction_had_32bit_immediate <= 0;
 
         if (stack_write_back) begin
             stack_write_back <= 0;
@@ -134,6 +140,21 @@ module top (
 
                 // halt
                 8'hFF: halted <= 1;
+
+                // push {4}
+                8'h10: begin
+                    instruction_had_32bit_immediate <= 1;
+
+                    stack_pointer = stack_pointer - 1;
+
+                    stack_write_back <= 1;
+                    stack_write_back_value <= {
+                        instructions[instruction_index+1],
+                        instructions[instruction_index+2],
+                        instructions[instruction_index+3],
+                        instructions[instruction_index+4]
+                    };
+                end
 
                 // push0
                 8'h11: begin
@@ -159,7 +180,10 @@ module top (
 
     always @(negedge instruction_clock) begin
         if (~stack_write_back) begin
-            instruction_index <= instruction_index + 1;
+            if (instruction_had_32bit_immediate)
+                instruction_index <= instruction_index + 5;
+            else
+                instruction_index <= instruction_index + 1;
         end
     end
 endmodule
