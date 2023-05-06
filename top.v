@@ -125,7 +125,6 @@ module top (
     reg stack_write_back;
     reg [31:0] stack_write_back_value = 0;
 
-    // TODO: briefly flickers incorrect pushed value on display, because SP has incremented but new value hasn't been written back
     always @(posedge instruction_clock) begin
         led <= ~led;
         jump_target_set <= 0;
