@@ -96,18 +96,20 @@ module top (
     end
 
     wire [7:0] instructions [0:3];
-    assign instructions[0] = 8'b00000000;
-    assign instructions[1] = 8'b00000010;
-    assign instructions[2] = 8'b00000010;
-    assign instructions[3] = 8'b00000011;
+    assign instructions[0] = 8'h11; // push0
+    assign instructions[1] = 8'h20; // inc
+    assign instructions[2] = 8'h20; // inc
+    assign instructions[3] = 8'hFF; // halt
 
     reg [1:0] instruction_index = 0;
 
     // 2^22 * (1 / 16MHz) =~ 0.25s per clock
     reg [22:0] instruction_clock_counter = 0;
     wire instruction_clock = instruction_clock_counter[22];
+    reg halted = 0;
     always @(posedge CLK) begin
-        instruction_clock_counter <= instruction_clock_counter + 1;
+        if (~halted)
+            instruction_clock_counter <= instruction_clock_counter + 1;
     end
 
     reg led = 0;
@@ -127,17 +129,29 @@ module top (
         end
         else begin
             case (instructions[instruction_index])
-                8'b00000000: begin
+                // nop
+                8'h00:;
+
+                // halt
+                8'hFF: halted <= 1;
+
+                // push0
+                8'h11: begin
                     stack_pointer = stack_pointer - 1;
 
                     stack_write_back <= 1;
                     stack_write_back_value <= 0;
                 end
-                8'b00000010: begin
+
+                // pop
+                8'h02: stack_pointer <= stack_pointer + 1;
+
+                // inc
+                8'h20: begin
                     stack_write_back <= 1;
                     stack_write_back_value <= stack_top_item + 1;
                 end
-                8'b00000011: stack_pointer <= stack_pointer + 1;
+
                 default:;
             endcase
         end
