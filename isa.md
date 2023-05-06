@@ -17,7 +17,7 @@ TODO: consistent suffix for "indirect"?
 - `push x (x10 {4})` - Push integer constant `x` to the stack
 - `push0 (x11)` - Push 0 to the stack
 - `pop (x02)` - Discard value from stack
-- `swap` - Swap top two items
+- `swap (x03)` - Swap top two items
 - `dup` - Duplicate top item
 
 ## Memory Operations

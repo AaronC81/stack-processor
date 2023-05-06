@@ -162,7 +162,9 @@ module main (
 
     // We can't read and write the stack in the same cycle, so do this instead
     reg stack_write_back;
-    reg [31:0] stack_write_back_value = 0;
+    reg [31:0] stack_write_back_top_value = 0;
+    reg stack_write_back_second;
+    reg [31:0] stack_write_back_second_value = 0;
 
     always @(posedge instruction_clock) begin
         led <= ~led;
@@ -171,7 +173,12 @@ module main (
 
         if (stack_write_back) begin
             stack_write_back <= 0;
-            stack[stack_pointer + 1] <= stack_write_back_value;
+            stack[stack_pointer + 1] <= stack_write_back_top_value;
+
+            if (stack_write_back_second) begin
+                stack_write_back_second <= 0;
+                stack[stack_pointer + 2] <= stack_write_back_second_value;
+            end
         end
         else begin
             instruction_had_32bit_immediate <= 0;
@@ -189,7 +196,7 @@ module main (
                     stack_pointer = stack_pointer - 1;
 
                     stack_write_back <= 1;
-                    stack_write_back_value <= inst_constant;
+                    stack_write_back_top_value <= inst_constant;
                 end
 
                 // push0
@@ -197,22 +204,31 @@ module main (
                     stack_pointer = stack_pointer - 1;
 
                     stack_write_back <= 1;
-                    stack_write_back_value <= 0;
+                    stack_write_back_top_value <= 0;
                 end
 
                 // pop
                 8'h02: stack_pointer <= stack_pointer + 1;
 
+                // swap
+                8'h03: begin
+                    stack_write_back <= 1;
+                    stack_write_back_top_value <= stack_second_item;
+
+                    stack_write_back_second <= 1;
+                    stack_write_back_second_value <= stack_top_item;
+                end
+
                 // inc
                 8'h20: begin
                     stack_write_back <= 1;
-                    stack_write_back_value <= stack_top_item + 1;
+                    stack_write_back_top_value <= stack_top_item + 1;
                 end
 
                 // add
                 8'h21: begin
                     stack_write_back <= 1;
-                    stack_write_back_value = stack_top_item + stack_second_item;
+                    stack_write_back_top_value = stack_top_item + stack_second_item;
 
                     stack_pointer = stack_pointer + 1;
                 end
