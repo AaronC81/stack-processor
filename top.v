@@ -1,12 +1,24 @@
+/*
+Single-digit seven segment display driver.
+Supports digits 0-9 plus an extra "invalid" display (shown as "-").
+
+Segment mapping:
+.-------.
+|   a   |
+| f   b |
+|   g   |
+| e   c |
+|   d   |
+'-------'
+
+On `clk`:
+- If `valid` set, updates to show `digit`.
+- If `valid` not set, updates to show "-".
+*/ 
 module seven_seg (
     input clk, input [4:0] digit, input valid,
     output A, output B, output C, output D, output E, output F, output G
 );
-    //   a
-    // f   b
-    //   g
-    // e   c
-    //   d
 
     reg [6:0] state;
     assign A = state[6];
