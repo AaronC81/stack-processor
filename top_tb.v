@@ -9,7 +9,7 @@ module top_tb;
     wire [31:0] stack_top;
     wire [31:0] stack_count;
 
-    top top_inst (.LED (LED) , .CLK (clk), .STACK_TOP_ITEM(stack_top), .STACK_ITEM_COUNT(stack_count));
+    main top_inst (.LED (LED) , .CLK (clk), .STACK_TOP_ITEM(stack_top), .STACK_ITEM_COUNT(stack_count));
     defparam top_inst.INSTRUCTION_CLOCK_BIT = 2;
     
     always

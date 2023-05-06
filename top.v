@@ -61,6 +61,33 @@ module top (
     output PIN_12, // D
     output PIN_11, // E
     output PIN_16, // F
+    output PIN_17  // G
+);
+    main main_inst(
+        .CLK(CLK),
+        .LED(LED),
+        .USBPU(USBPU),
+        .PIN_15(PIN_15),
+        .PIN_14(PIN_14),
+        .PIN_13(PIN_13),
+        .PIN_12(PIN_12),
+        .PIN_11(PIN_11),
+        .PIN_16(PIN_16),
+        .PIN_17(PIN_17)
+    );
+endmodule
+
+module main (
+    input CLK,
+    output LED,
+    output USBPU,
+
+    output PIN_15, // A
+    output PIN_14, // B
+    output PIN_13, // C
+    output PIN_12, // D
+    output PIN_11, // E
+    output PIN_16, // F
     output PIN_17, // G
 
     output [31:0] STACK_TOP_ITEM,
