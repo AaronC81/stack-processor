@@ -7,6 +7,7 @@ module top_tb;
   reg clk;
  
   top top_inst ( .LED (LED) , .CLK (clk) );
+  defparam top_inst.INSTRUCTION_CLOCK_BIT = 2;
  
   always
   begin

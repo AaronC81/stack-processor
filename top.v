@@ -63,6 +63,9 @@ module top (
     output PIN_16, // F
     output PIN_17  // G
 );
+    // 2^22 * (1 / 16MHz) =~ 0.25s per clock
+    parameter INSTRUCTION_CLOCK_BIT = 22;
+
     assign USBPU = 0;
 
     reg seven_seg_clock;
@@ -111,9 +114,8 @@ module top (
     reg [31:0] jump_target;
     reg instruction_had_32bit_immediate = 0;
 
-    // 2^22 * (1 / 16MHz) =~ 0.25s per clock
-    reg [22:0] instruction_clock_counter = 0;
-    wire instruction_clock = instruction_clock_counter[22];
+    reg [31:0] instruction_clock_counter = 0;
+    wire instruction_clock = instruction_clock_counter[INSTRUCTION_CLOCK_BIT];
     reg halted = 0;
     always @(posedge CLK) begin
         if (~halted)
