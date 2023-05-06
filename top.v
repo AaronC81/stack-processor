@@ -95,17 +95,15 @@ module top (
             stack[i] = 0;
     end
 
-    wire [7:0] instructions [0:7];
-    assign instructions[0] = 8'h10; // push
-    assign instructions[1] = 8'h00; //   xx000000
-    assign instructions[2] = 8'h00; //   00xx0000
-    assign instructions[3] = 8'h00; //   0000xx00
-    assign instructions[4] = 8'h06; //   000000xx
-    assign instructions[5] = 8'h20; // inc
-    assign instructions[6] = 8'h20; // inc
-    assign instructions[7] = 8'hFF; // halt
-
+    wire [7:0] inst_instruction;
+    wire [31:0] inst_constant;
     reg [31:0] instruction_index = 0;
+    instruction_memory instruction_memory_inst(
+        .index(instruction_index),
+        .instruction(inst_instruction),
+        .constant(inst_constant)
+    );
+
     reg instruction_had_32bit_immediate = 0;
 
     // 2^22 * (1 / 16MHz) =~ 0.25s per clock
@@ -134,7 +132,7 @@ module top (
             stack[stack_pointer + 1] <= stack_write_back_value;
         end
         else begin
-            case (instructions[instruction_index])
+            case (inst_instruction)
                 // nop
                 8'h00:;
 
@@ -148,12 +146,7 @@ module top (
                     stack_pointer = stack_pointer - 1;
 
                     stack_write_back <= 1;
-                    stack_write_back_value <= {
-                        instructions[instruction_index+1],
-                        instructions[instruction_index+2],
-                        instructions[instruction_index+3],
-                        instructions[instruction_index+4]
-                    };
+                    stack_write_back_value <= inst_constant;
                 end
 
                 // push0
