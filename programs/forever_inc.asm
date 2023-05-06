@@ -1,8 +1,7 @@
-; Init
 push0
 
-; Loop start
+@loop_start
 inc
 show
-push d1
+push @loop_start
 br

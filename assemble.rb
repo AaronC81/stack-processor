@@ -14,6 +14,8 @@ INSTRUCTIONS = {
     "show" => { opcode: 0xFE },
 }
 
+labels = {}
+
 bytes = []
 File.read(file).split("\n").each.with_index do |line, i|
     error = ->msg{ abort "Error (line #{i + 1}): #{msg}" }
@@ -21,6 +23,13 @@ File.read(file).split("\n").each.with_index do |line, i|
     line.strip!
     next if line.start_with?(';') || line.empty?
     assembly = line.split(";").first
+
+    if assembly.start_with?('@')
+        error.("Label cannot contain whitespace") if assembly.split.length > 1
+        labels[assembly] = bytes.length
+        next
+    end
+
     inst, *operands = *line.split
     error.("No opcode given") if inst.nil?
 
@@ -39,6 +48,10 @@ File.read(file).split("\n").each.with_index do |line, i|
             operand = Integer(operand[1..], 10)
         when 'b'
             operand = Integer(operand[1..], 2)
+        when '@'
+            # TODO: does not allow labels to be defined in the future
+            operand = labels[operand]
+            error.("Undefined label #{operand}") unless operand
         else
             error.("Malformed operand")
         end
