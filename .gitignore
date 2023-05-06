@@ -5,3 +5,4 @@ hardware.json
 *.out
 *.vcd
 instruction_memory.v
+top_tb_data.rb

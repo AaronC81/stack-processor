@@ -61,10 +61,15 @@ module top (
     output PIN_12, // D
     output PIN_11, // E
     output PIN_16, // F
-    output PIN_17  // G
+    output PIN_17, // G
+
+    output [31:0] STACK_TOP_ITEM,
+    output [31:0] STACK_ITEM_COUNT
 );
     // 2^22 * (1 / 16MHz) =~ 0.25s per clock
     parameter INSTRUCTION_CLOCK_BIT = 22;
+
+    parameter STACK_SIZE = 255;
 
     assign USBPU = 0;
 
@@ -82,22 +87,25 @@ module top (
         .G(PIN_17)
     );
 
-    reg [31:0] stack [0:255];
-    reg [7:0] stack_pointer = 255;
+    reg [31:0] stack [0:STACK_SIZE];
+    reg [7:0] stack_pointer = STACK_SIZE;
 
     wire [31:0] stack_top_item;
     assign stack_top_item = stack[stack_pointer + 1];
+    assign STACK_TOP_ITEM = stack_top_item;
     wire [31:0] stack_second_item;
     assign stack_second_item = stack[stack_pointer + 2];
 
     wire stack_is_empty;
-    assign stack_is_empty = stack_pointer == 255;
+    assign stack_is_empty = stack_pointer == STACK_SIZE;
     wire stack_not_empty;
     assign stack_not_empty = ~stack_is_empty;
 
+    assign STACK_ITEM_COUNT = STACK_SIZE - stack_pointer;
+
     integer i;
     initial begin
-        for (i = 0; i <= 255; i = i + 1)
+        for (i = 0; i <= STACK_SIZE; i = i + 1)
             stack[i] = 0;
     end
 
