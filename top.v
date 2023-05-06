@@ -114,6 +114,11 @@ module main (
         .G(PIN_17)
     );
 
+    // === Stack ===
+    // Implements a stack with 32-bit elements which grows downwards.
+    //
+    // The top and second-from-top (henceforth just "second") items of the stack can be read with
+    // `stack_top_item` and `stack_second_item`.
     reg [31:0] stack [0:STACK_SIZE];
     reg [7:0] stack_pointer = STACK_SIZE;
 
@@ -136,6 +141,11 @@ module main (
             stack[i] = 0;
     end
 
+    // === Instruction memory ===
+    // Access to read-only memory for reading instructions through an index.
+    //
+    // `inst_instruction` is the byte at the index.
+    // `inst_constant` is the 4-byte integer after the current index.
     wire [7:0] inst_instruction;
     wire [31:0] inst_constant;
     reg [31:0] instruction_index = 0;
@@ -145,10 +155,23 @@ module main (
         .constant(inst_constant)
     );
 
+    // === Jump control ===
+    // By default, on the negative edge of the instruction clock, the instruction index by advance
+    // by 1. These controls allow the index to be changed differently on the next negative edge.
+    //
+    // If `jump_target_set` is 1, then the instruction index will become `jump_target` instead.
+    //
+    // If `instruction_had_32bit_immediate` is set, then the instruction clock will advance by 5
+    // instead of 1.
     reg jump_target_set = 0;
     reg [31:0] jump_target;
     reg instruction_had_32bit_immediate = 0;
 
+    // === Clock divider ===
+    // Selects a bit of a counter to use as a clock bit, making this clock available as
+    // `instruction_clock`.
+    //
+    // The clock stops counting up if the processor is `halted`.
     reg [31:0] instruction_clock_counter = 0;
     wire instruction_clock = instruction_clock_counter[INSTRUCTION_CLOCK_BIT];
     reg halted = 0;
@@ -160,7 +183,17 @@ module main (
     reg led = 0;
     assign LED = led;
 
-    // We can't read and write the stack in the same cycle, so do this instead
+    // === Write-back ===
+    // Due to memory limitations, it isn't possible to write back to the stack on the same cycle
+    // that we execute an instruction. As a result, instructions which write to the stack require
+    // an extra cycle to execute.
+    //
+    // If `stack_write_back` is 1, the next cycle will be spent writing to the stack instead of
+    // executing an instruction.
+    // `stack_write_back_top_value` is written to the top of the stack.
+    //
+    // If `stack_write_back_second` is also 1, `stack_write_back_second_value` is written to the
+    // second value of the stack.
     reg stack_write_back;
     reg [31:0] stack_write_back_top_value = 0;
     reg stack_write_back_second;
