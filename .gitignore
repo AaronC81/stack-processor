@@ -4,3 +4,4 @@ hardware.bin
 hardware.json
 *.out
 *.vcd
+instruction_memory.v
