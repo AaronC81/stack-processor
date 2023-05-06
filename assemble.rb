@@ -11,6 +11,7 @@ INSTRUCTIONS = {
     "push0" => { opcode: 0x11 },
     "inc" => { opcode: 0x20 },
     "br" => { opcode: 0x30 },
+    "show" => { opcode: 0xFE },
 }
 
 bytes = []

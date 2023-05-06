@@ -39,12 +39,15 @@ TODO: consistent suffix for "indirect"?
 - `halt (xFF)` - Stop doing anything
 - `nop (x00)` - Do nothing
 
+## Debugging
+- `show (xFE)` - Peek top of stack, display on debugging output
+
 TODO: conditionals?
 
 # Example Program
 
 ```python
-push 5
+push d5
 call double
 call serial_write
 halt
@@ -56,6 +59,6 @@ double:
     ret     # return something on the top of the stack
 
 serial_write:
-    store 0x1234 # Peripheral address
+    store h1234 # Peripheral address
     ret
 ```

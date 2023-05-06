@@ -65,8 +65,9 @@ module top (
 );
     assign USBPU = 0;
 
+    reg seven_seg_clock;
     seven_seg seven_seg_inst(
-        .clk(CLK),
+        .clk(seven_seg_clock),
         .digit(stack_top_item),
         .valid(stack_not_empty),
         .A(PIN_15),
@@ -128,6 +129,7 @@ module top (
     always @(posedge instruction_clock) begin
         led <= ~led;
         jump_target_set <= 0;
+        seven_seg_clock <= 0;
 
         if (stack_write_back) begin
             stack_write_back <= 0;
@@ -175,6 +177,9 @@ module top (
                     jump_target_set <= 1;
                     stack_pointer <= stack_pointer + 1;
                 end
+
+                // show
+                8'hFE: seven_seg_clock <= 1;
 
                 default:;
             endcase
