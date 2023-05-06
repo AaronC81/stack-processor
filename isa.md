@@ -32,8 +32,8 @@ TODO: consistent suffix for "indirect"?
 - `inc (x20)` - Pop `a`, push `a+1`
 
 ## Routines
-- `br addr` - Pop memory location from stack, branch to it
-- `call addr` - Pop memory location from stack, push address of next instruction, then branch to it
+- `br (x30)` - Pop memory location from stack, branch to it
+- `call` - Pop memory location from stack, push address of next instruction, then branch to it
 - `br-indirect`/`call-indirect` - self-explanatory
 - `ret` - Pop memory location from stack, and branch to it
 - `halt (xFF)` - Stop doing anything

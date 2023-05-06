@@ -104,6 +104,8 @@ module top (
         .constant(inst_constant)
     );
 
+    reg jump_target_set = 0;
+    reg [31:0] jump_target;
     reg instruction_had_32bit_immediate = 0;
 
     // 2^22 * (1 / 16MHz) =~ 0.25s per clock
@@ -125,13 +127,14 @@ module top (
     // TODO: briefly flickers incorrect pushed value on display, because SP has incremented but new value hasn't been written back
     always @(posedge instruction_clock) begin
         led <= ~led;
-        instruction_had_32bit_immediate <= 0;
+        jump_target_set <= 0;
 
         if (stack_write_back) begin
             stack_write_back <= 0;
             stack[stack_pointer + 1] <= stack_write_back_value;
         end
         else begin
+            instruction_had_32bit_immediate <= 0;
             case (inst_instruction)
                 // nop
                 8'h00:;
@@ -166,6 +169,13 @@ module top (
                     stack_write_back_value <= stack_top_item + 1;
                 end
 
+                // br
+                8'h30: begin
+                    jump_target <= stack_top_item;
+                    jump_target_set <= 1;
+                    stack_pointer <= stack_pointer + 1;
+                end
+
                 default:;
             endcase
         end
@@ -173,7 +183,9 @@ module top (
 
     always @(negedge instruction_clock) begin
         if (~stack_write_back) begin
-            if (instruction_had_32bit_immediate)
+            if (jump_target_set)
+                instruction_index <= jump_target;
+            else if (instruction_had_32bit_immediate)
                 instruction_index <= instruction_index + 5;
             else
                 instruction_index <= instruction_index + 1;

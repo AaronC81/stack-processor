@@ -10,13 +10,16 @@ INSTRUCTIONS = {
     "push" => { opcode: 0x10, operand: true },
     "push0" => { opcode: 0x11 },
     "inc" => { opcode: 0x20 },
+    "br" => { opcode: 0x30 },
 }
 
 bytes = []
 File.read(file).split("\n").each.with_index do |line, i|
     error = ->msg{ abort "Error (line #{i + 1}): #{msg}" }
 
-    assembly = line.strip.split(";").first
+    line.strip!
+    next if line.start_with?(';') || line.empty?
+    assembly = line.split(";").first
     inst, *operands = *line.split
     error.("No opcode given") if inst.nil?
 
